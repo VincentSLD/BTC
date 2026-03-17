@@ -861,15 +861,12 @@ Fournis une analyse structurée en JSON UNIQUEMENT (sans markdown, sans backtick
 {"signal":"ACHETER"|"VENDRE"|"ATTENDRE","force":1-10,"horizon":"court terme (24h-48h)"|"moyen terme (1-2 semaines)"|"long terme (1+ mois)","confluence":["raison 1","raison 2","raison 3"],"risques":["risque 1","risque 2"],"niveaux":{"support1":prix,"support2":prix,"resistance1":prix,"resistance2":prix},"synthese":"2-3 phrases d'analyse globale pour trader intermédiaire"}`;
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify({ prompt })
     });
+    if (!r.ok) throw new Error('API error ' + r.status);
     const d = await r.json();
     const raw = d.content?.[0]?.text || '{}';
     const clean = raw.replace(/```json|```/g, '').trim();
