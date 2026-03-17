@@ -27,7 +27,25 @@
     --mono:      'JetBrains Mono', monospace;
     --sans:      'DM Sans', sans-serif;
   }
-  html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--sans); }
+  [data-theme="light"] {
+    --bg:        #f8fafc;
+    --bg2:       #ffffff;
+    --bg3:       #f1f5f9;
+    --border:    #e2e8f0;
+    --border2:   #cbd5e1;
+    --text:      #0f172a;
+    --muted:     #64748b;
+    --muted2:    #94a3b8;
+    --muted3:    #cbd5e1;
+    --cyan:      #0891b2;
+    --cyan2:     #0e7490;
+    --yellow:    #ca8a04;
+    --orange:    #ea580c;
+    --purple:    #7c3aed;
+    --red:       #dc2626;
+    --green:     #65a30d;
+  }
+  html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--sans); transition: background .3s, color .3s; }
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: var(--bg3); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -37,12 +55,11 @@
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
   @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
   @keyframes spin { to { transform: rotate(360deg); } }
-
   .fade-in { animation: fadeIn .35s ease both; }
 
   /* ── TOP BAR ── */
   #topbar {
-    background: linear-gradient(90deg, var(--bg) 0%, #07182e 50%, var(--bg) 100%);
+    background: linear-gradient(90deg, var(--bg) 0%, var(--bg2) 50%, var(--bg) 100%);
     border-bottom: 1px solid var(--border2);
     padding: 0 20px;
     height: 56px;
@@ -54,29 +71,47 @@
     width: 32px; height: 32px; border-radius: 8px;
     background: linear-gradient(135deg, var(--orange), var(--yellow));
     display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--bg);
+    font-family: var(--mono); font-weight: 700; font-size: 15px; color: #030d1a;
   }
   #topbar .brand { font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: .1em; }
   #topbar .sub { font-size: 10px; color: var(--muted3); }
   #live-dot { width:6px; height:6px; border-radius:50%; background: var(--cyan2); animation: pulse 2s infinite; }
-  #topbar .right { display: flex; align-items: baseline; gap: 12px; }
+  #topbar .right { display: flex; align-items: center; gap: 12px; }
   #price-display { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--yellow); }
   #change-display { font-family: var(--mono); font-size: 12px; }
   #tick-time { font-size: 10px; color: var(--muted3); }
+  #theme-toggle {
+    background: none; border: 1px solid var(--border); border-radius: 6px;
+    padding: 4px 8px; font-size: 14px; color: var(--muted); transition: all .2s;
+  }
+  #theme-toggle:hover { border-color: var(--cyan); color: var(--cyan); }
 
   /* ── MAIN WRAPPER ── */
   #app { max-width: 980px; margin: 0 auto; padding: 16px 16px 60px; }
 
   /* ── CONTROLS ── */
   #controls { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
-  .tf-btn, .tab-btn {
+  .tf-btn, .tab-btn, .chart-mode-btn {
     padding: 5px 14px; border-radius: 5px; border: 1px solid var(--border);
     background: transparent; font-size: 11px; font-weight: 600; letter-spacing: .08em;
     color: var(--muted2); transition: all .15s;
   }
   .tf-btn.active { border-color: var(--cyan); background: rgba(0,212,255,.1); color: var(--cyan); }
   .tab-btn.active { border-color: var(--purple); background: rgba(167,139,250,.1); color: var(--purple); }
+  .chart-mode-btn.active { border-color: var(--green); background: rgba(163,230,53,.1); color: var(--green); }
   .divider { width:1px; height:20px; background: var(--border); }
+
+  /* ── FEAR & GREED ── */
+  #fng-box {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 14px; margin-bottom: 16px;
+  }
+  #fng-score { font-family: var(--mono); font-size: 28px; font-weight: 700; }
+  #fng-label { font-size: 11px; font-weight: 600; font-family: var(--mono); }
+  #fng-bar { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; position: relative; overflow: hidden; }
+  #fng-bar-gradient { position: absolute; inset: 0; background: linear-gradient(90deg, #dc2626, #f97316, #facc15, #a3e635, #22c55e); border-radius: 3px; }
+  #fng-cursor { position: absolute; top: -2px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg); transition: left .5s; }
 
   /* ── STAT ROW ── */
   #stats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -96,13 +131,31 @@
   }
   .chart-panel-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 14px; border-bottom: 1px solid var(--bg);
+    padding: 10px 14px; border-bottom: 1px solid var(--bg3);
   }
   .chart-panel-title { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: .1em; }
-  .chart-panel-legend { display: flex; gap: 12px; }
+  .chart-panel-legend { display: flex; gap: 12px; flex-wrap: wrap; }
   .legend-item { display: flex; align-items: center; gap: 5px; }
   .legend-item span { font-size: 9px; color: var(--muted2); }
-  .chart-panel-body { padding: 8px 2px 4px; }
+  .chart-panel-body { padding: 8px 2px 4px; position: relative; }
+
+  /* ── TOOLTIP ── */
+  #chart-tooltip {
+    position: absolute; pointer-events: none; z-index: 50;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 12px; font-family: var(--mono); font-size: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.4); display: none; white-space: nowrap;
+  }
+  #chart-tooltip .tt-price { font-size: 14px; font-weight: 700; color: var(--cyan); }
+  #chart-tooltip .tt-date { color: var(--muted); margin-top: 2px; }
+  #chart-tooltip .tt-vol { color: var(--muted2); margin-top: 2px; }
+  #chart-tooltip .tt-eth { color: #a78bfa; margin-top: 2px; }
+  #crosshair-v, #crosshair-h {
+    position: absolute; pointer-events: none; z-index: 40;
+    background: rgba(100,116,139,.3);
+  }
+  #crosshair-v { width: 1px; top: 0; bottom: 0; display: none; }
+  #crosshair-h { height: 1px; left: 0; right: 0; display: none; }
 
   /* ── TABS CONTENT ── */
   .tab-content { display: none; }
@@ -157,7 +210,7 @@
   /* ── AI TAB ── */
   #ai-btn {
     width: 100%; padding: 14px;
-    background: linear-gradient(135deg, #07182e, #0f2040);
+    background: linear-gradient(135deg, var(--bg3), var(--bg2));
     border: 1px solid var(--purple); border-radius: 10px;
     color: var(--purple); font-size: 12px; font-weight: 700; letter-spacing: .1em;
     margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;
@@ -165,7 +218,6 @@
   }
   #ai-btn:hover:not(:disabled) { background: rgba(167,139,250,.1); }
   #ai-btn:disabled { border-color: var(--border); color: var(--muted2); cursor: not-allowed; }
-  #ai-spinner { animation: spin 1s linear infinite; display: inline-block; }
 
   .signal-badge {
     display: inline-flex; align-items: center; gap: 8px;
@@ -178,11 +230,11 @@
 
   .ai-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
   .ai-card-title { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; margin-bottom: 8px; }
-  #ai-synthese { font-size: 13px; line-height: 1.8; color: #cbd5e1; }
+  #ai-synthese { font-size: 13px; line-height: 1.8; color: var(--text); opacity: .85; }
 
   .ai-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
   .conf-item, .risk-item {
-    font-size: 12px; color: #94a3b8; margin-bottom: 6px;
+    font-size: 12px; color: var(--muted); margin-bottom: 6px;
     padding-left: 10px; border-left: 2px solid; line-height: 1.5;
   }
   .conf-item { border-color: rgba(34,211,238,.3); }
@@ -193,6 +245,62 @@
   .level-chip-label { font-size: 9px; color: var(--muted2); font-family: var(--mono); margin-bottom: 3px; }
   .level-chip-val { font-family: var(--mono); font-size: 14px; font-weight: 600; }
 
+  /* AI actions */
+  .ai-actions { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .ai-action-btn {
+    padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--bg3); font-size: 10px; font-weight: 600;
+    color: var(--muted); font-family: var(--mono); transition: all .15s;
+  }
+  .ai-action-btn:hover { border-color: var(--purple); color: var(--purple); }
+
+  /* AI history */
+  #ai-history { margin-top: 16px; }
+  .ai-hist-item {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 8px; cursor: pointer; transition: all .15s;
+  }
+  .ai-hist-item:hover { border-color: var(--purple); }
+  .ai-hist-head { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+  .ai-hist-signal { font-family: var(--mono); font-size: 11px; font-weight: 700; }
+  .ai-hist-date { font-size: 9px; color: var(--muted2); font-family: var(--mono); }
+  .ai-hist-summary { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.5; display: none; }
+  .ai-hist-item.expanded .ai-hist-summary { display: block; }
+
+  /* ── PRICE ALERT ── */
+  #alert-bar {
+    display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  #alert-bar input {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 12px; color: var(--text); font-family: var(--mono); font-size: 12px;
+    width: 140px; outline: none;
+  }
+  #alert-bar input:focus { border-color: var(--cyan); }
+  #alert-bar select {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 8px; color: var(--text); font-family: var(--mono); font-size: 11px;
+    outline: none;
+  }
+  .alert-add-btn {
+    padding: 6px 14px; border-radius: 6px; border: 1px solid var(--cyan);
+    background: rgba(0,212,255,.1); color: var(--cyan); font-size: 11px;
+    font-weight: 600; font-family: var(--mono);
+  }
+  .alert-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 5px; font-family: var(--mono); font-size: 10px;
+    border: 1px solid var(--border); background: var(--bg3);
+  }
+  .alert-chip .remove { color: var(--red); cursor: pointer; font-size: 12px; }
+  #alert-notification {
+    position: fixed; top: 70px; right: 20px; z-index: 200;
+    background: var(--bg2); border: 2px solid var(--cyan); border-radius: 10px;
+    padding: 16px 20px; font-family: var(--mono); font-size: 12px;
+    box-shadow: 0 8px 30px rgba(0,212,255,.2); display: none; animation: fadeIn .3s ease;
+  }
+  #alert-notification .notif-title { font-weight: 700; color: var(--cyan); margin-bottom: 4px; }
+
   /* ── PLACEHOLDER ── */
   #ai-placeholder { text-align: center; padding: 60px 20px; color: var(--muted3); }
   #ai-placeholder .big-icon { font-size: 40px; margin-bottom: 12px; }
@@ -202,9 +310,9 @@
   #disclaimer {
     margin-top: 20px; padding: 10px 14px;
     background: rgba(249,115,22,.04); border: 1px solid rgba(249,115,22,.15);
-    border-radius: 7px; font-size: 10px; color: #78716c; line-height: 1.7;
+    border-radius: 7px; font-size: 10px; color: var(--muted); line-height: 1.7;
   }
-  #disclaimer b { color: #92400e; }
+  #disclaimer b { color: var(--orange); }
 
   /* ── LOADING OVERLAY ── */
   #loading-overlay {
@@ -218,11 +326,31 @@
   }
   #loading-overlay p { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: .1em; }
 
+  /* ── COMPARISON TOGGLE ── */
+  #compare-wrap { display: flex; align-items: center; gap: 8px; }
+  .compare-btn {
+    padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border);
+    background: transparent; font-size: 10px; font-weight: 600;
+    color: var(--muted2); font-family: var(--mono); transition: all .15s;
+  }
+  .compare-btn.active { border-color: var(--purple); background: rgba(167,139,250,.1); color: var(--purple); }
+
+  /* ── PRINT/EXPORT ── */
+  @media print {
+    #topbar, #controls, #alert-bar, #ai-btn, .ai-actions, #ai-history,
+    #loading-overlay, #theme-toggle, #compare-wrap, .chart-mode-btn, #fng-box { display: none !important; }
+    body { background: #fff !important; color: #000 !important; }
+    .chart-panel, .ai-card, .ind-block { border-color: #ccc !important; }
+    #tab-ai { display: block !important; }
+    #ai-result-wrap { display: block !important; }
+  }
+
   @media (max-width: 600px) {
     .two-col, .ai-two-col { grid-template-columns: 1fr; }
     #price-display { font-size: 17px; }
     #topbar { padding: 0 12px; }
     #app { padding: 12px 10px 60px; }
+    #fng-box { flex-wrap: wrap; }
   }
 </style>
 </head>
@@ -231,33 +359,73 @@
 <!-- LOADING -->
 <div id="loading-overlay">
   <div class="spinner"></div>
-  <p>CHARGEMENT DES DONNÉES…</p>
+  <p>CHARGEMENT DES DONNEES...</p>
+</div>
+
+<!-- ALERT NOTIFICATION -->
+<div id="alert-notification">
+  <div class="notif-title">ALERTE PRIX</div>
+  <div id="alert-notif-msg"></div>
 </div>
 
 <!-- TOP BAR -->
 <div id="topbar">
   <div class="left">
-    <div id="btc-icon">₿</div>
+    <div id="btc-icon">&#8383;</div>
     <div>
       <div class="brand">BTC/USD</div>
-      <div class="sub">COINBASE · LIVE</div>
+      <div class="sub">COINBASE &middot; LIVE</div>
     </div>
     <div id="live-dot"></div>
   </div>
   <div class="right">
-    <div id="price-display">—</div>
-    <div id="change-display">—</div>
+    <div id="price-display">&mdash;</div>
+    <div id="change-display">&mdash;</div>
     <div id="tick-time"></div>
+    <button id="theme-toggle" title="Changer le theme">&#9790;</button>
   </div>
 </div>
 
 <div id="app">
+
+  <!-- FEAR & GREED -->
+  <div id="fng-box">
+    <div>
+      <div style="font-size:9px;color:var(--muted2);font-family:var(--mono);letter-spacing:.1em;margin-bottom:2px">FEAR &amp; GREED</div>
+      <div id="fng-score" style="color:var(--muted)">&mdash;</div>
+    </div>
+    <div id="fng-label" style="min-width:80px">&mdash;</div>
+    <div id="fng-bar">
+      <div id="fng-bar-gradient"></div>
+      <div id="fng-cursor"></div>
+    </div>
+  </div>
+
+  <!-- PRICE ALERTS -->
+  <div id="alert-bar">
+    <span style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em">ALERTES :</span>
+    <input id="alert-price-input" type="number" placeholder="Prix ($)" />
+    <select id="alert-dir">
+      <option value="above">Au-dessus</option>
+      <option value="below">En-dessous</option>
+    </select>
+    <button class="alert-add-btn" id="alert-add-btn">+ AJOUTER</button>
+    <div id="alert-chips"></div>
+  </div>
 
   <!-- CONTROLS -->
   <div id="controls">
     <button class="tf-btn active" data-tf="1">24H</button>
     <button class="tf-btn" data-tf="7">7J</button>
     <button class="tf-btn" data-tf="30">30J</button>
+    <div class="divider"></div>
+    <button class="chart-mode-btn active" data-mode="candle">CHANDELIER</button>
+    <button class="chart-mode-btn" data-mode="line">LIGNE</button>
+    <div class="divider"></div>
+    <div id="compare-wrap">
+      <button class="compare-btn" data-coin="ETH">ETH</button>
+      <button class="compare-btn" data-coin="SOL">SOL</button>
+    </div>
     <div class="divider"></div>
     <button class="tab-btn active" data-tab="chart">GRAPHIQUES</button>
     <button class="tab-btn" data-tab="indicators">INDICATEURS</button>
@@ -266,59 +434,60 @@
 
   <!-- STATS -->
   <div id="stats">
-    <div class="stat-box"><div class="stat-label">High</div><div class="stat-value" id="s-high" style="color:var(--cyan2)">—</div></div>
-    <div class="stat-box"><div class="stat-label">Low</div><div class="stat-value" id="s-low" style="color:var(--red)">—</div></div>
+    <div class="stat-box"><div class="stat-label">High</div><div class="stat-value" id="s-high" style="color:var(--cyan2)">&mdash;</div></div>
+    <div class="stat-box"><div class="stat-label">Low</div><div class="stat-value" id="s-low" style="color:var(--red)">&mdash;</div></div>
     <div class="stat-box" id="sb-rsi">
       <div class="stat-label">RSI (14)</div>
-      <div class="stat-value" id="s-rsi">—</div>
+      <div class="stat-value" id="s-rsi">&mdash;</div>
       <div class="stat-sub" id="s-rsi-sub"></div>
     </div>
     <div class="stat-box" id="sb-macd">
       <div class="stat-label">MACD Hist.</div>
-      <div class="stat-value" id="s-macd">—</div>
+      <div class="stat-value" id="s-macd">&mdash;</div>
       <div class="stat-sub" id="s-macd-sub"></div>
     </div>
     <div class="stat-box">
       <div class="stat-label">MA20 / Prix</div>
-      <div class="stat-value" id="s-ma20">—</div>
+      <div class="stat-value" id="s-ma20">&mdash;</div>
       <div class="stat-sub" id="s-ma20-sub"></div>
     </div>
     <div class="stat-box">
       <div class="stat-label">Vol. / Moy.</div>
-      <div class="stat-value" id="s-vol">—</div>
+      <div class="stat-value" id="s-vol">&mdash;</div>
       <div class="stat-sub" id="s-vol-sub"></div>
     </div>
   </div>
 
-  <!-- ═══════════ TAB: CHART ═══════════ -->
+  <!-- TAB: CHART -->
   <div id="tab-chart" class="tab-content active">
-
-    <div class="chart-panel">
+    <div class="chart-panel" id="main-chart-panel">
       <div class="chart-panel-header">
-        <span class="chart-panel-title">PRIX · BTC/USD</span>
-        <div class="chart-panel-legend">
-          <div class="legend-item"><svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#00d4ff" stroke-width="1.5"/></svg><span>Prix</span></div>
+        <span class="chart-panel-title">PRIX &middot; BTC/USD</span>
+        <div class="chart-panel-legend" id="price-chart-legend">
+          <div class="legend-item"><svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#00d4ff" stroke-width="1.5"/></svg><span>BTC</span></div>
           <div class="legend-item"><svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#facc15" stroke-width="1.5"/></svg><span>MA20</span></div>
           <div class="legend-item"><svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#a78bfa" stroke-width="1.5"/></svg><span>MA50</span></div>
           <div class="legend-item"><svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4 2"/></svg><span>MA200</span></div>
         </div>
       </div>
-      <div class="chart-panel-body">
+      <div class="chart-panel-body" id="price-chart-wrap">
         <svg id="price-chart" width="100%" viewBox="0 0 800 255" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.25"/>
-              <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <text x="400" y="130" text-anchor="middle" fill="#1e293b" font-family="JetBrains Mono" font-size="12">Chargement…</text>
+          <text x="400" y="130" text-anchor="middle" fill="#1e293b" font-family="JetBrains Mono" font-size="12">Chargement...</text>
         </svg>
+        <div id="chart-tooltip">
+          <div class="tt-price"></div>
+          <div class="tt-date"></div>
+          <div class="tt-vol"></div>
+          <div class="tt-eth"></div>
+        </div>
+        <div id="crosshair-v"></div>
+        <div id="crosshair-h"></div>
       </div>
     </div>
 
     <div class="chart-panel">
       <div class="chart-panel-header">
-        <span class="chart-panel-title">MACD · 12/26/9</span>
+        <span class="chart-panel-title">MACD &middot; 12/26/9</span>
         <div class="chart-panel-legend">
           <div class="legend-item"><svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#00d4ff" stroke-width="1.5"/></svg><span>MACD</span></div>
           <div class="legend-item"><svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#f87171" stroke-width="1" stroke-dasharray="3 2"/></svg><span>Signal</span></div>
@@ -331,28 +500,25 @@
 
     <div class="chart-panel">
       <div class="chart-panel-header">
-        <span class="chart-panel-title">RSI · 14 PÉRIODES</span>
+        <span class="chart-panel-title">RSI &middot; 14 PERIODES</span>
       </div>
       <div class="chart-panel-body">
         <svg id="rsi-chart" width="100%" viewBox="0 0 800 70" preserveAspectRatio="none"></svg>
         <div style="display:flex;justify-content:space-between;padding:2px 6px;font-size:9px;color:var(--muted2);font-family:var(--mono)">
-          <span style="color:var(--orange)">70 — Suracheté</span>
-          <span>RSI actuel : <span id="rsi-chart-val">—</span></span>
-          <span style="color:var(--cyan2)">30 — Survendu</span>
+          <span style="color:var(--orange)">70 &mdash; Surachete</span>
+          <span>RSI actuel : <span id="rsi-chart-val">&mdash;</span></span>
+          <span style="color:var(--cyan2)">30 &mdash; Survendu</span>
         </div>
       </div>
     </div>
+  </div>
 
-  </div><!-- /tab-chart -->
-
-  <!-- ═══════════ TAB: INDICATORS ═══════════ -->
+  <!-- TAB: INDICATORS -->
   <div id="tab-indicators" class="tab-content">
-
-    <!-- RSI -->
     <div class="ind-block">
-      <div class="ind-title">RSI — RELATIVE STRENGTH INDEX</div>
+      <div class="ind-title">RSI &mdash; RELATIVE STRENGTH INDEX</div>
       <div style="display:flex;align-items:center;gap:20px">
-        <div id="rsi-big">—</div>
+        <div id="rsi-big">&mdash;</div>
         <div style="flex:1">
           <div id="rsi-bar-wrap">
             <div class="rsi-zone-line" style="left:30%;background:var(--cyan2)"></div>
@@ -363,7 +529,7 @@
             <span>0</span>
             <span style="color:var(--cyan2)">30 (Survendu)</span>
             <span>50</span>
-            <span style="color:var(--orange)">70 (Suracheté)</span>
+            <span style="color:var(--orange)">70 (Surachete)</span>
             <span>100</span>
           </div>
         </div>
@@ -371,103 +537,108 @@
       <div class="ind-hint" id="rsi-hint"></div>
     </div>
 
-    <!-- MACD -->
     <div class="ind-block">
-      <div class="ind-title">MACD — 12/26/9</div>
+      <div class="ind-title">MACD &mdash; 12/26/9</div>
       <div class="macd-vals">
         <div class="macd-val-box">
           <div class="macd-val-label">Ligne MACD</div>
-          <div class="macd-val-num" id="i-macd-line">—</div>
+          <div class="macd-val-num" id="i-macd-line">&mdash;</div>
         </div>
         <div class="macd-val-box">
           <div class="macd-val-label">Signal (9)</div>
-          <div class="macd-val-num" id="i-macd-sig" style="color:var(--red)">—</div>
+          <div class="macd-val-num" id="i-macd-sig" style="color:var(--red)">&mdash;</div>
         </div>
         <div class="macd-val-box">
           <div class="macd-val-label">Histogramme</div>
-          <div class="macd-val-num" id="i-macd-hist">—</div>
+          <div class="macd-val-num" id="i-macd-hist">&mdash;</div>
         </div>
       </div>
       <div class="ind-hint" id="macd-hint"></div>
     </div>
 
-    <!-- Moving Averages -->
     <div class="ind-block">
       <div class="ind-title">MOYENNES MOBILES</div>
       <div id="ma-rows"></div>
       <div class="ind-hint" id="ma-hint"></div>
     </div>
 
-    <!-- BB + Volume -->
     <div class="two-col">
       <div class="ind-block" style="margin-bottom:0">
         <div class="ind-title">BANDES DE BOLLINGER</div>
-        <div class="kv-row"><span class="kv-key">Upper</span><span class="kv-val" id="bb-upper" style="color:var(--orange)">—</span></div>
-        <div class="kv-row"><span class="kv-key">Middle</span><span class="kv-val" id="bb-mid" style="color:var(--muted)">—</span></div>
-        <div class="kv-row"><span class="kv-key">Lower</span><span class="kv-val" id="bb-lower" style="color:var(--cyan2)">—</span></div>
+        <div class="kv-row"><span class="kv-key">Upper</span><span class="kv-val" id="bb-upper" style="color:var(--orange)">&mdash;</span></div>
+        <div class="kv-row"><span class="kv-key">Middle</span><span class="kv-val" id="bb-mid" style="color:var(--muted)">&mdash;</span></div>
+        <div class="kv-row"><span class="kv-key">Lower</span><span class="kv-val" id="bb-lower" style="color:var(--cyan2)">&mdash;</span></div>
         <div class="ind-hint" id="bb-hint"></div>
       </div>
       <div class="ind-block" style="margin-bottom:0">
         <div class="ind-title">VOLUME</div>
-        <div class="kv-row"><span class="kv-key">Vol. actuel</span><span class="kv-val" id="vol-cur">—</span></div>
-        <div class="kv-row"><span class="kv-key">Moy. 20p</span><span class="kv-val" id="vol-avg">—</span></div>
+        <div class="kv-row"><span class="kv-key">Vol. actuel</span><span class="kv-val" id="vol-cur">&mdash;</span></div>
+        <div class="kv-row"><span class="kv-key">Moy. 20p</span><span class="kv-val" id="vol-avg">&mdash;</span></div>
         <div style="margin-top:8px">
           <div style="font-size:10px;color:var(--muted2);margin-bottom:4px">Ratio vol/moy</div>
           <div id="vol-ratio-bar"><div id="vol-ratio-fill"></div></div>
         </div>
       </div>
     </div>
+  </div>
 
-  </div><!-- /tab-indicators -->
-
-  <!-- ═══════════ TAB: AI ═══════════ -->
+  <!-- TAB: AI -->
   <div id="tab-ai" class="tab-content">
     <button id="ai-btn" disabled>
-      <span id="ai-btn-icon">◈</span>
-      <span id="ai-btn-text">GÉNÉRER L'ANALYSE IA</span>
+      <span id="ai-btn-icon">&#9672;</span>
+      <span id="ai-btn-text">GENERER L'ANALYSE IA</span>
     </button>
 
     <div id="ai-placeholder">
-      <div class="big-icon">◈</div>
-      <p>Lance l'analyse pour obtenir un signal IA<br>basé sur tous les indicateurs</p>
+      <div class="big-icon">&#9672;</div>
+      <p>Lance l'analyse pour obtenir un signal IA<br>base sur tous les indicateurs</p>
     </div>
 
     <div id="ai-result-wrap" style="display:none">
+      <div class="ai-actions">
+        <button class="ai-action-btn" id="ai-export-btn">EXPORTER PDF</button>
+      </div>
+
       <div id="ai-header">
-        <div id="ai-signal-badge" class="signal-badge">—</div>
+        <div id="ai-signal-badge" class="signal-badge">&mdash;</div>
         <div id="ai-force"></div>
         <div id="ai-horizon"></div>
       </div>
 
       <div class="ai-card">
-        <div class="ai-card-title" style="color:var(--muted)">SYNTHÈSE</div>
+        <div class="ai-card-title" style="color:var(--muted)">SYNTHESE</div>
         <div id="ai-synthese"></div>
       </div>
 
       <div class="ai-two-col">
         <div class="ai-card" style="margin-bottom:0">
-          <div class="ai-card-title" style="color:var(--cyan2)">✦ CONFLUENCES</div>
+          <div class="ai-card-title" style="color:var(--cyan2)">CONFLUENCES</div>
           <div id="ai-conf"></div>
         </div>
         <div class="ai-card" style="margin-bottom:0">
-          <div class="ai-card-title" style="color:var(--red)">⚠ RISQUES</div>
+          <div class="ai-card-title" style="color:var(--red)">RISQUES</div>
           <div id="ai-risks"></div>
         </div>
       </div>
 
       <div class="ai-card" style="margin-top:12px">
-        <div class="ai-card-title" style="color:var(--muted)">NIVEAUX CLÉS</div>
+        <div class="ai-card-title" style="color:var(--muted)">NIVEAUX CLES</div>
         <div id="levels-wrap"></div>
       </div>
     </div>
-  </div><!-- /tab-ai -->
 
-  <div id="disclaimer">
-    ⚠ <b>AVERTISSEMENT</b> — Application à but éducatif uniquement. Les signaux ne constituent pas des conseils financiers.
-    Le trading de cryptomonnaies est hautement spéculatif et comporte un risque significatif de perte en capital.
+    <div id="ai-history">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;margin-bottom:8px">HISTORIQUE DES ANALYSES</div>
+      <div id="ai-history-list"></div>
+    </div>
   </div>
 
-</div><!-- /app -->
+  <div id="disclaimer">
+    <b>AVERTISSEMENT</b> &mdash; Application a but educatif uniquement. Les signaux ne constituent pas des conseils financiers.
+    Le trading de cryptomonnaies est hautement speculatif et comporte un risque significatif de perte en capital.
+  </div>
+
+</div>
 
 <script>
 /* ══════════════════════════════════
@@ -538,57 +709,85 @@ function calcBB(prices, period = 20, mult = 2) {
 /* ══════════════════════════════════
    SVG CHART RENDERERS
 ══════════════════════════════════ */
-function renderPriceChart(closes, volumes, ma20arr, ma50arr, ma200arr) {
+function renderPriceChart(candles, ma20arr, ma50arr, ma200arr, compareData) {
   const svg = document.getElementById('price-chart');
+  const closes = candles.map(c => c[4]);
+  const volumes = candles.map(c => c[5]);
   const W = 800, H = 200, VP = 10, VH = 45;
   const min = Math.min(...closes), max = Math.max(...closes), range = max - min || 1;
   const toY = v => VP + ((max - v) / range) * (H - VP * 2);
   const toX = i => (i / (closes.length - 1)) * W;
 
-  const pts = closes.map((v, i) => `${toX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(' ');
-  const areaD = `M ${toX(0).toFixed(1)},${H} ` +
-    closes.map((v, i) => `L ${toX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(' ') +
-    ` L ${toX(closes.length - 1).toFixed(1)},${H} Z`;
+  const grid = [0.25, 0.5, 0.75].map(f =>
+    '<line x1="0" y1="' + (VP + f * (H - VP * 2)).toFixed(1) + '" x2="' + W + '" y2="' + (VP + f * (H - VP * 2)).toFixed(1) + '" stroke="#1e293b" stroke-width="0.5"/>'
+  ).join('');
 
-  const maLine = (arr, color, dash = '') => {
+  let candlesSvg = '';
+  if (chartMode === 'candle') {
+    const bw = Math.max(1, (W / closes.length) * 0.6);
+    candles.forEach((c, i) => {
+      const [ts, lo, hi, open, close] = c;
+      const up = close >= open;
+      const color = up ? '#22d3ee' : '#f87171';
+      const x = toX(i);
+      const yHi = toY(hi), yLo = toY(lo);
+      const yOpen = toY(open), yClose = toY(close);
+      const bodyTop = Math.min(yOpen, yClose);
+      const bodyH = Math.max(Math.abs(yOpen - yClose), 0.5);
+      candlesSvg += '<line x1="' + x.toFixed(1) + '" y1="' + yHi.toFixed(1) + '" x2="' + x.toFixed(1) + '" y2="' + yLo.toFixed(1) + '" stroke="' + color + '" stroke-width="0.8"/>';
+      candlesSvg += '<rect x="' + (x - bw/2).toFixed(1) + '" y="' + bodyTop.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + bodyH.toFixed(1) + '" fill="' + color + '" rx="0.5"/>';
+    });
+  } else {
+    const pts = closes.map((v, i) => toX(i).toFixed(1) + ',' + toY(v).toFixed(1)).join(' ');
+    const areaD = 'M ' + toX(0).toFixed(1) + ',' + H + ' ' +
+      closes.map((v, i) => 'L ' + toX(i).toFixed(1) + ',' + toY(v).toFixed(1)).join(' ') +
+      ' L ' + toX(closes.length - 1).toFixed(1) + ',' + H + ' Z';
+    candlesSvg = '<path d="' + areaD + '" fill="url(#areaGrad)"/>' +
+      '<polyline points="' + pts + '" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-linejoin="round"/>';
+  }
+
+  const maLine = (arr, color, dash) => {
     if (!arr || !arr.length) return '';
     let d = '', first = true;
     arr.forEach((v, i) => {
       if (v == null) { first = true; return; }
-      d += first ? `M ${toX(i).toFixed(1)},${toY(v).toFixed(1)} ` : `L ${toX(i).toFixed(1)},${toY(v).toFixed(1)} `;
+      d += first ? 'M ' + toX(i).toFixed(1) + ',' + toY(v).toFixed(1) + ' ' : 'L ' + toX(i).toFixed(1) + ',' + toY(v).toFixed(1) + ' ';
       first = false;
     });
-    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="1" stroke-dasharray="${dash}" opacity="0.85"/>`;
+    return '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="1" stroke-dasharray="' + (dash || '') + '" opacity="0.85"/>';
   };
 
   const maxVol = Math.max(...volumes);
   const volBars = volumes.map((v, i) => {
-    const x = toX(i).toFixed(1);
+    const x = toX(i);
     const barH = (v / maxVol) * VH;
     const barY = H + 10 + VH - barH;
     const up = closes[i] >= (closes[i - 1] ?? closes[i]);
-    return `<rect x="${(parseFloat(x) - 0.8).toFixed(1)}" y="${barY.toFixed(1)}" width="1.6" height="${barH.toFixed(1)}" fill="${up ? '#00d4ff' : '#f87171'}" opacity="0.6"/>`;
+    return '<rect x="' + (x - 0.8).toFixed(1) + '" y="' + barY.toFixed(1) + '" width="1.6" height="' + barH.toFixed(1) + '" fill="' + (up ? '#00d4ff' : '#f87171') + '" opacity="0.6"/>';
   }).join('');
 
-  const grid = [0.25, 0.5, 0.75].map(f =>
-    `<line x1="0" y1="${(VP + f * (H - VP * 2)).toFixed(1)}" x2="${W}" y2="${(VP + f * (H - VP * 2)).toFixed(1)}" stroke="#1e293b" stroke-width="0.5"/>`
-  ).join('');
+  // Compare overlay
+  let compareSvg = '';
+  if (compareData && compareData.closes && compareData.closes.length > 0) {
+    const cCloses = compareData.closes;
+    const cMin = Math.min(...cCloses), cMax = Math.max(...cCloses), cRange = cMax - cMin || 1;
+    const cToY = v => VP + ((cMax - v) / cRange) * (H - VP * 2);
+    const cToX = i => (i / (cCloses.length - 1)) * W;
+    let d = '', first = true;
+    cCloses.forEach((v, i) => {
+      d += first ? 'M ' + cToX(i).toFixed(1) + ',' + cToY(v).toFixed(1) + ' ' : 'L ' + cToX(i).toFixed(1) + ',' + cToY(v).toFixed(1) + ' ';
+      first = false;
+    });
+    compareSvg = '<path d="' + d + '" fill="none" stroke="#a78bfa" stroke-width="1.2" stroke-dasharray="6 3" opacity="0.6"/>';
+  }
 
-  svg.innerHTML = `
-    <defs>
-      <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.25"/>
-        <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    ${grid}
-    <path d="${areaD}" fill="url(#areaGrad)"/>
-    <polyline points="${pts}" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-linejoin="round"/>
-    ${maLine(ma20arr, '#facc15')}
-    ${maLine(ma50arr, '#a78bfa')}
-    ${maLine(ma200arr, '#f87171', '4 2')}
-    ${volBars}
-  `;
+  svg.innerHTML =
+    '<defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00d4ff" stop-opacity="0.25"/><stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/></linearGradient></defs>' +
+    grid + candlesSvg +
+    maLine(ma20arr, '#facc15', '') +
+    maLine(ma50arr, '#a78bfa', '') +
+    maLine(ma200arr, '#f87171', '4 2') +
+    compareSvg + volBars;
 }
 
 function renderMACDChart(macdLine, signalFull) {
@@ -598,43 +797,43 @@ function renderMACDChart(macdLine, signalFull) {
   if (!vals.length) return;
   const mn = Math.min(...vals), mx = Math.max(...vals), rng = mx - mn || 1;
   const toY = v => PAD + ((mx - v) / rng) * (H - PAD * 2);
-  const toX = i => ((i / (macdLine.length - 1)) * W).toFixed(1);
+  const toX = i => (i / (macdLine.length - 1)) * W;
   const zero = toY(0).toFixed(1);
 
   const bars = macdLine.map((v, i) => {
     if (v == null) return '';
     const hist = v - (signalFull[i] ?? 0);
     const y1 = toY(Math.max(0, hist)), y2 = toY(Math.min(0, hist));
-    return `<rect x="${(parseFloat(toX(i)) - 1.5).toFixed(1)}" y="${Math.min(y1, y2).toFixed(1)}" width="3" height="${Math.max(Math.abs(y1 - y2), 0.5).toFixed(1)}" fill="${hist >= 0 ? '#22d3ee' : '#f87171'}" opacity="0.7"/>`;
+    return '<rect x="' + (toX(i) - 1.5).toFixed(1) + '" y="' + Math.min(y1, y2).toFixed(1) + '" width="3" height="' + Math.max(Math.abs(y1 - y2), 0.5).toFixed(1) + '" fill="' + (hist >= 0 ? '#22d3ee' : '#f87171') + '" opacity="0.7"/>';
   }).join('');
 
-  const macdPts = macdLine.map((v, i) => v != null ? `${toX(i)},${toY(v).toFixed(1)}` : null).filter(Boolean).join(' ');
-  const sigPts  = signalFull.map((v, i) => v != null ? `${toX(i)},${toY(v).toFixed(1)}` : null).filter(Boolean).join(' ');
+  const macdPts = macdLine.map((v, i) => v != null ? toX(i).toFixed(1) + ',' + toY(v).toFixed(1) : null).filter(Boolean).join(' ');
+  const sigPts = signalFull.map((v, i) => v != null ? toX(i).toFixed(1) + ',' + toY(v).toFixed(1) : null).filter(Boolean).join(' ');
 
-  svg.innerHTML = `
-    <line x1="0" y1="${zero}" x2="${W}" y2="${zero}" stroke="#334155" stroke-width="0.5"/>
-    ${bars}
-    <polyline points="${macdPts}" fill="none" stroke="#00d4ff" stroke-width="1.2"/>
-    <polyline points="${sigPts}" fill="none" stroke="#f87171" stroke-width="1" stroke-dasharray="3 2"/>
-  `;
+  svg.innerHTML =
+    '<line x1="0" y1="' + zero + '" x2="' + W + '" y2="' + zero + '" stroke="#334155" stroke-width="0.5"/>' +
+    bars +
+    '<polyline points="' + macdPts + '" fill="none" stroke="#00d4ff" stroke-width="1.2"/>' +
+    '<polyline points="' + sigPts + '" fill="none" stroke="#f87171" stroke-width="1" stroke-dasharray="3 2"/>';
 }
 
-function renderRSIChart(closes, period = 14) {
+function renderRSIChart(closes, period) {
+  period = period || 14;
   const svg = document.getElementById('rsi-chart');
   const W = 800, H = 70, PAD = 4;
   const rsiArr = closes.map((_, i) =>
     i < period ? null : calcRSI(closes.slice(0, i + 1), period)
   );
   const toY = v => PAD + ((100 - v) / 100) * (H - PAD * 2);
-  const toX = i => ((i / (closes.length - 1)) * W).toFixed(1);
+  const toX = i => (i / (closes.length - 1)) * W;
 
   const lines = [30, 70].map(l =>
-    `<line x1="0" y1="${toY(l).toFixed(1)}" x2="${W}" y2="${toY(l).toFixed(1)}" stroke="${l === 30 ? '#22d3ee' : '#f97316'}" stroke-width="0.5" stroke-dasharray="4 2"/>`
+    '<line x1="0" y1="' + toY(l).toFixed(1) + '" x2="' + W + '" y2="' + toY(l).toFixed(1) + '" stroke="' + (l === 30 ? '#22d3ee' : '#f97316') + '" stroke-width="0.5" stroke-dasharray="4 2"/>'
   ).join('');
-  const zeroline = `<line x1="0" y1="${toY(50).toFixed(1)}" x2="${W}" y2="${toY(50).toFixed(1)}" stroke="#334155" stroke-width="0.5"/>`;
+  const zeroline = '<line x1="0" y1="' + toY(50).toFixed(1) + '" x2="' + W + '" y2="' + toY(50).toFixed(1) + '" stroke="#334155" stroke-width="0.5"/>';
 
-  const pts = rsiArr.map((v, i) => v != null ? `${toX(i)},${toY(v).toFixed(1)}` : null).filter(Boolean).join(' ');
-  svg.innerHTML = `${lines}${zeroline}<polyline points="${pts}" fill="none" stroke="#a78bfa" stroke-width="1.5"/>`;
+  const pts = rsiArr.map((v, i) => v != null ? toX(i).toFixed(1) + ',' + toY(v).toFixed(1) : null).filter(Boolean).join(' ');
+  svg.innerHTML = lines + zeroline + '<polyline points="' + pts + '" fill="none" stroke="#a78bfa" stroke-width="1.5"/>';
 }
 
 /* ══════════════════════════════════
@@ -644,7 +843,13 @@ let currentPrice = null;
 let indicators   = null;
 let history      = null;
 let timeframe    = '7';
-let priceInterval = null;
+let chartMode    = 'candle';
+let compareCoins = new Set();
+let compareCache = {};
+let priceAlerts  = JSON.parse(localStorage.getItem('btc_alerts') || '[]');
+let aiHistory    = JSON.parse(localStorage.getItem('btc_ai_history') || '[]');
+let candleInterval = null;
+let priceInterval  = null;
 
 /* ══════════════════════════════════
    DATA FETCHERS
@@ -658,6 +863,7 @@ async function fetchLivePrice() {
       '$' + currentPrice.toLocaleString('en-US', { minimumFractionDigits: 0 });
     document.getElementById('tick-time').textContent =
       new Date().toLocaleTimeString('fr-FR');
+    checkPriceAlerts();
   } catch {}
 }
 
@@ -666,7 +872,7 @@ async function fetchCandles(days) {
   const gran  = days === '1' ? 900 : days === '7' ? 3600 : 86400;
   const start = end - parseInt(days) * 86400;
   const r = await fetch(
-    `https://api.exchange.coinbase.com/products/BTC-USD/candles?start=${start}&end=${end}&granularity=${gran}`
+    'https://api.exchange.coinbase.com/products/BTC-USD/candles?start=' + start + '&end=' + end + '&granularity=' + gran
   );
   const raw = await r.json();
   if (!Array.isArray(raw) || raw.length < 10) throw new Error('No data');
@@ -688,8 +894,185 @@ async function fetchCandles(days) {
   const change = ((closes[closes.length-1] - closes[0]) / closes[0] * 100);
   const high = Math.max(...closes), low = Math.min(...closes);
 
-  history    = { closes, vols, ma20arr, ma50arr, ma200arr };
+  history    = { candles: sorted, closes, vols, ma20arr, ma50arr, ma200arr };
   indicators = { rsi, macdData, ma20, ma50, ma200, bb, avgVol, curVol, change, high, low };
+}
+
+async function fetchCompareCandles(coin, days) {
+  try {
+    const end   = Math.floor(Date.now() / 1000);
+    const gran  = days === '1' ? 900 : days === '7' ? 3600 : 86400;
+    const start = end - parseInt(days) * 86400;
+    const r = await fetch(
+      'https://api.exchange.coinbase.com/products/' + coin + '-USD/candles?start=' + start + '&end=' + end + '&granularity=' + gran
+    );
+    const raw = await r.json();
+    if (!Array.isArray(raw) || raw.length < 5) return null;
+    const sorted = raw.sort((a, b) => a[0] - b[0]);
+    return { closes: sorted.map(c => c[4]), candles: sorted };
+  } catch { return null; }
+}
+
+async function fetchFearGreed() {
+  try {
+    const r = await fetch('https://api.alternative.me/fng/?limit=1');
+    const d = await r.json();
+    const val = parseInt(d.data[0].value);
+    const label = d.data[0].value_classification;
+    document.getElementById('fng-score').textContent = val;
+    document.getElementById('fng-label').textContent = label;
+
+    const colors = { 'Extreme Fear': '#dc2626', 'Fear': '#f97316', 'Neutral': '#facc15', 'Greed': '#a3e635', 'Extreme Greed': '#22c55e' };
+    const c = colors[label] || '#facc15';
+    document.getElementById('fng-score').style.color = c;
+    document.getElementById('fng-label').style.color = c;
+    const cursor = document.getElementById('fng-cursor');
+    cursor.style.left = val + '%';
+    cursor.style.background = c;
+  } catch {}
+}
+
+/* ══════════════════════════════════
+   TOOLTIP
+══════════════════════════════════ */
+function setupTooltip() {
+  const wrap = document.getElementById('price-chart-wrap');
+  const tooltip = document.getElementById('chart-tooltip');
+  const vLine = document.getElementById('crosshair-v');
+  const hLine = document.getElementById('crosshair-h');
+
+  wrap.addEventListener('mousemove', e => {
+    if (!history || !history.candles) return;
+    const rect = wrap.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const pct = x / rect.width;
+    const idx = Math.round(pct * (history.candles.length - 1));
+    if (idx < 0 || idx >= history.candles.length) return;
+
+    const candle = history.candles[idx];
+    const date = new Date(candle[0] * 1000);
+    const dateStr = date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+    tooltip.querySelector('.tt-price').textContent = '$' + candle[4].toLocaleString('en-US');
+    tooltip.querySelector('.tt-date').textContent = dateStr;
+    tooltip.querySelector('.tt-vol').textContent = 'Vol: ' + candle[5].toFixed(2) + ' BTC';
+
+    if (chartMode === 'candle') {
+      tooltip.querySelector('.tt-price').textContent =
+        'O:$' + candle[3].toLocaleString() + '  H:$' + candle[2].toLocaleString() + '  L:$' + candle[1].toLocaleString() + '  C:$' + candle[4].toLocaleString();
+    }
+
+    // Show compare coin price if active
+    const ethEl = tooltip.querySelector('.tt-eth');
+    ethEl.textContent = '';
+    for (const coin of compareCoins) {
+      if (compareCache[coin] && compareCache[coin].closes) {
+        const cIdx = Math.round(pct * (compareCache[coin].closes.length - 1));
+        if (cIdx >= 0 && cIdx < compareCache[coin].closes.length) {
+          ethEl.textContent += coin + ': $' + compareCache[coin].closes[cIdx].toLocaleString() + '  ';
+        }
+      }
+    }
+
+    const tx = Math.min(x + 12, rect.width - 220);
+    const ty = Math.max(y - 60, 0);
+    tooltip.style.left = tx + 'px';
+    tooltip.style.top = ty + 'px';
+    tooltip.style.display = 'block';
+
+    vLine.style.left = x + 'px';
+    vLine.style.display = 'block';
+    hLine.style.top = y + 'px';
+    hLine.style.display = 'block';
+  });
+
+  wrap.addEventListener('mouseleave', () => {
+    tooltip.style.display = 'none';
+    vLine.style.display = 'none';
+    hLine.style.display = 'none';
+  });
+}
+
+/* ══════════════════════════════════
+   PRICE ALERTS
+══════════════════════════════════ */
+function renderAlertChips() {
+  const wrap = document.getElementById('alert-chips');
+  wrap.innerHTML = priceAlerts.map((a, i) =>
+    '<span class="alert-chip">' +
+    (a.dir === 'above' ? '&#9650;' : '&#9660;') + ' $' + Number(a.price).toLocaleString() +
+    ' <span class="remove" data-idx="' + i + '">&times;</span></span>'
+  ).join('');
+  wrap.querySelectorAll('.remove').forEach(el => {
+    el.addEventListener('click', () => {
+      priceAlerts.splice(parseInt(el.dataset.idx), 1);
+      localStorage.setItem('btc_alerts', JSON.stringify(priceAlerts));
+      renderAlertChips();
+    });
+  });
+}
+
+function checkPriceAlerts() {
+  if (!currentPrice) return;
+  priceAlerts.forEach((a, i) => {
+    if (a.triggered) return;
+    const hit = (a.dir === 'above' && currentPrice >= a.price) ||
+                (a.dir === 'below' && currentPrice <= a.price);
+    if (hit) {
+      a.triggered = true;
+      localStorage.setItem('btc_alerts', JSON.stringify(priceAlerts));
+      showAlertNotification(a);
+    }
+  });
+}
+
+function showAlertNotification(alert) {
+  const el = document.getElementById('alert-notification');
+  document.getElementById('alert-notif-msg').textContent =
+    'BTC ' + (alert.dir === 'above' ? 'au-dessus de' : 'en-dessous de') + ' $' + Number(alert.price).toLocaleString() +
+    ' — Prix actuel: $' + currentPrice.toLocaleString();
+  el.style.display = 'block';
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('BTC Alert', { body: 'BTC ' + (alert.dir === 'above' ? '>' : '<') + ' $' + alert.price });
+  }
+  setTimeout(() => { el.style.display = 'none'; }, 8000);
+}
+
+/* ══════════════════════════════════
+   AI HISTORY
+══════════════════════════════════ */
+function renderAIHistory() {
+  const list = document.getElementById('ai-history-list');
+  if (!aiHistory.length) {
+    list.innerHTML = '<div style="font-size:11px;color:var(--muted3);padding:20px;text-align:center">Aucune analyse precedente</div>';
+    return;
+  }
+  list.innerHTML = aiHistory.slice().reverse().map((h, i) => {
+    const signalColors = { ACHETER: 'var(--cyan2)', VENDRE: 'var(--red)', ATTENDRE: 'var(--yellow)' };
+    return '<div class="ai-hist-item" data-idx="' + i + '">' +
+      '<div class="ai-hist-head">' +
+      '<span class="ai-hist-signal" style="color:' + (signalColors[h.signal] || 'var(--muted)') + '">' + (h.signal || '?') + ' (' + (h.force || 0) + '/10)</span>' +
+      '<span class="ai-hist-date">' + (h.date || '') + '</span>' +
+      '</div>' +
+      '<div class="ai-hist-summary">' + (h.synthese || '') + '</div>' +
+      '</div>';
+  }).join('');
+  list.querySelectorAll('.ai-hist-item').forEach(el => {
+    el.addEventListener('click', () => el.classList.toggle('expanded'));
+  });
+}
+
+function saveAIHistory(ai) {
+  const entry = {
+    signal: ai.signal, force: ai.force, horizon: ai.horizon,
+    synthese: ai.synthese, price: currentPrice,
+    date: new Date().toLocaleString('fr-FR')
+  };
+  aiHistory.push(entry);
+  if (aiHistory.length > 20) aiHistory = aiHistory.slice(-20);
+  localStorage.setItem('btc_ai_history', JSON.stringify(aiHistory));
+  renderAIHistory();
 }
 
 /* ══════════════════════════════════
@@ -704,52 +1087,51 @@ function updateStats() {
   document.getElementById('s-low').textContent  = '$' + low.toLocaleString();
 
   const rsiEl = document.getElementById('s-rsi');
-  rsiEl.textContent = rsi ?? '—';
+  rsiEl.textContent = rsi ?? '\u2014';
   rsiEl.style.color = !rsi ? '#94a3b8' : rsi < 30 ? 'var(--cyan2)' : rsi > 70 ? 'var(--red)' : 'var(--green)';
-  document.getElementById('s-rsi-sub').textContent = !rsi ? '' : rsi < 30 ? 'Survendu' : rsi > 70 ? 'Suracheté' : 'Zone neutre';
+  document.getElementById('s-rsi-sub').textContent = !rsi ? '' : rsi < 30 ? 'Survendu' : rsi > 70 ? 'Surachete' : 'Zone neutre';
 
   const hist = macdData?.hist;
   const macdEl = document.getElementById('s-macd');
-  macdEl.textContent = hist != null ? hist.toFixed(1) : '—';
+  macdEl.textContent = hist != null ? hist.toFixed(1) : '\u2014';
   macdEl.style.color = hist >= 0 ? 'var(--cyan2)' : 'var(--red)';
   document.getElementById('s-macd-sub').textContent = hist >= 0 ? 'Haussier' : 'Baissier';
 
   const ma20El = document.getElementById('s-ma20');
-  ma20El.textContent = ma20 ? '$' + Math.round(ma20).toLocaleString() : '—';
+  ma20El.textContent = ma20 ? '$' + Math.round(ma20).toLocaleString() : '\u2014';
   const aboveMa20 = ma20 && currentPrice > ma20;
   ma20El.style.color = aboveMa20 ? 'var(--cyan2)' : 'var(--red)';
   document.getElementById('s-ma20-sub').textContent = ma20 ? (aboveMa20 ? 'Prix au-dessus' : 'Prix en-dessous') : '';
 
-  const ratio = avgVol ? (curVol / avgVol * 100).toFixed(0) + '%' : '—';
+  const ratio = avgVol ? (curVol / avgVol * 100).toFixed(0) + '%' : '\u2014';
   const volEl = document.getElementById('s-vol');
   volEl.textContent = ratio;
   volEl.style.color = avgVol && curVol > avgVol ? 'var(--cyan2)' : '#94a3b8';
-  document.getElementById('s-vol-sub').textContent = avgVol ? (curVol > avgVol ? 'Vol. élevé' : 'Vol. faible') : '';
+  document.getElementById('s-vol-sub').textContent = avgVol ? (curVol > avgVol ? 'Vol. eleve' : 'Vol. faible') : '';
 
-  // change display
   const changeEl = document.getElementById('change-display');
-  changeEl.textContent = `${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}%`;
+  changeEl.textContent = (change >= 0 ? '\u25B2' : '\u25BC') + ' ' + Math.abs(change).toFixed(2) + '%';
   changeEl.style.color = change >= 0 ? 'var(--cyan2)' : 'var(--red)';
-  document.getElementById('s-high').closest('.stat-box').querySelector('.stat-label').textContent = `High ${label}`;
-  document.getElementById('s-low').closest('.stat-box').querySelector('.stat-label').textContent = `Low ${label}`;
+  document.getElementById('s-high').closest('.stat-box').querySelector('.stat-label').textContent = 'High ' + label;
+  document.getElementById('s-low').closest('.stat-box').querySelector('.stat-label').textContent = 'Low ' + label;
 }
 
 function updateCharts() {
   if (!history) return;
-  renderPriceChart(history.closes, history.vols, history.ma20arr, history.ma50arr, history.ma200arr);
+  const activeCompare = compareCoins.size > 0 ? compareCache[Array.from(compareCoins)[0]] : null;
+  renderPriceChart(history.candles, history.ma20arr, history.ma50arr, history.ma200arr, activeCompare);
   renderMACDChart(indicators.macdData.macdLine, indicators.macdData.signalFull);
   renderRSIChart(history.closes);
-  document.getElementById('rsi-chart-val').textContent = indicators.rsi ?? '—';
+  document.getElementById('rsi-chart-val').textContent = indicators.rsi ?? '\u2014';
 }
 
 function updateIndicatorTab() {
   if (!indicators || !currentPrice) return;
   const { rsi, macdData, ma20, ma50, ma200, bb, avgVol, curVol } = indicators;
 
-  // RSI
   const rsiColor = !rsi ? '#94a3b8' : rsi < 30 ? 'var(--cyan2)' : rsi > 70 ? 'var(--red)' : 'var(--green)';
   const rsiBig = document.getElementById('rsi-big');
-  rsiBig.textContent = rsi ?? '—';
+  rsiBig.textContent = rsi ?? '\u2014';
   rsiBig.style.color = rsiColor;
   const cursor = document.getElementById('rsi-cursor');
   if (rsi) {
@@ -757,69 +1139,65 @@ function updateIndicatorTab() {
     cursor.style.background = rsiColor;
   }
   document.getElementById('rsi-hint').textContent =
-    rsi < 30 ? '⬤ RSI en zone de survente — signal potentiel d\'achat. Le marché est peut-être oversold.' :
-    rsi > 70 ? '⬤ RSI en zone de surachat — signal potentiel de vente. Attention à un retournement.' :
-    '⬤ RSI en zone neutre. Ni suracheté ni survendu, attendre une confluence d\'autres signaux.';
+    rsi < 30 ? 'RSI en zone de survente \u2014 signal potentiel d\'achat.' :
+    rsi > 70 ? 'RSI en zone de surachat \u2014 signal potentiel de vente.' :
+    'RSI en zone neutre. Attendre une confluence d\'autres signaux.';
 
-  // MACD
   const ml = document.getElementById('i-macd-line');
   ml.textContent = macdData.last.toFixed(2);
   ml.style.color = macdData.last >= 0 ? 'var(--cyan2)' : 'var(--red)';
   document.getElementById('i-macd-sig').textContent = macdData.signal.toFixed(2);
-  const hist = document.getElementById('i-macd-hist');
-  hist.textContent = macdData.hist.toFixed(2);
-  hist.style.color = macdData.hist >= 0 ? 'var(--cyan2)' : 'var(--red)';
+  const histEl = document.getElementById('i-macd-hist');
+  histEl.textContent = macdData.hist.toFixed(2);
+  histEl.style.color = macdData.hist >= 0 ? 'var(--cyan2)' : 'var(--red)';
   document.getElementById('macd-hint').textContent =
     macdData.hist > 0 ?
-    '⬤ Histogramme positif — momentum haussier. MACD au-dessus de sa ligne signal.' :
-    '⬤ Histogramme négatif — momentum baissier. Surveiller un croisement haussier pour signal d\'entrée.';
+    'Histogramme positif \u2014 momentum haussier. MACD au-dessus de sa ligne signal.' :
+    'Histogramme negatif \u2014 momentum baissier. Surveiller un croisement haussier.';
 
-  // MA rows
   const maRows = document.getElementById('ma-rows');
   maRows.innerHTML = [
     ['MA20 (court terme)', ma20, '#facc15'],
     ['MA50 (moyen terme)', ma50, '#a78bfa'],
     ['MA200 (long terme)', ma200, '#f87171'],
-  ].map(([label, val, color]) => {
+  ].map(function(item) {
+    var label = item[0], val = item[1], color = item[2];
     if (!val) return '';
     const above = currentPrice > val;
-    return `<div class="ma-row">
-      <div class="ma-bar" style="background:${color}"></div>
-      <div class="ma-row-info">
-        <div class="ma-row-label">${label}</div>
-        <div class="ma-row-val" style="color:${color}">$${Math.round(val).toLocaleString()}</div>
-      </div>
-      <div class="ma-badge" style="background:${above ? 'rgba(34,211,238,.1)' : 'rgba(248,113,113,.1)'};color:${above ? 'var(--cyan2)' : 'var(--red)'};border:1px solid ${above ? '#22d3ee44' : '#f8717144'}">
-        ${above ? '▲ AU-DESSUS' : '▼ EN-DESSOUS'}
-      </div>
-    </div>`;
+    return '<div class="ma-row">' +
+      '<div class="ma-bar" style="background:' + color + '"></div>' +
+      '<div class="ma-row-info">' +
+      '<div class="ma-row-label">' + label + '</div>' +
+      '<div class="ma-row-val" style="color:' + color + '">$' + Math.round(val).toLocaleString() + '</div>' +
+      '</div>' +
+      '<div class="ma-badge" style="background:' + (above ? 'rgba(34,211,238,.1)' : 'rgba(248,113,113,.1)') + ';color:' + (above ? 'var(--cyan2)' : 'var(--red)') + ';border:1px solid ' + (above ? '#22d3ee44' : '#f8717144') + '">' +
+      (above ? '\u25B2 AU-DESSUS' : '\u25BC EN-DESSOUS') +
+      '</div></div>';
   }).join('');
 
   let maHint = '';
   if (ma20 && ma50 && ma200) {
     if (currentPrice > ma20 && currentPrice > ma50 && currentPrice > ma200)
-      maHint = '⬤ Prix au-dessus des 3 moyennes — tendance globalement haussière. Structure bullish.';
+      maHint = 'Prix au-dessus des 3 moyennes \u2014 tendance haussiere.';
     else if (currentPrice < ma20 && currentPrice < ma50)
-      maHint = '⬤ Prix sous MA20 et MA50 — pression baissière à court et moyen terme.';
+      maHint = 'Prix sous MA20 et MA50 \u2014 pression baissiere.';
     else
-      maHint = '⬤ Signal mixte entre les moyennes mobiles — marché en consolidation ou transition.';
+      maHint = 'Signal mixte \u2014 marche en consolidation ou transition.';
   }
   document.getElementById('ma-hint').textContent = maHint;
 
-  // BB
   if (bb) {
     document.getElementById('bb-upper').textContent = '$' + Math.round(bb.upper).toLocaleString();
     document.getElementById('bb-mid').textContent   = '$' + Math.round(bb.mid).toLocaleString();
     document.getElementById('bb-lower').textContent = '$' + Math.round(bb.lower).toLocaleString();
     document.getElementById('bb-hint').textContent =
-      currentPrice > bb.upper ? 'Prix au-dessus de la bande sup. — signal de surachat' :
-      currentPrice < bb.lower ? 'Prix sous la bande inf. — signal de survente' :
-      'Prix dans les bandes — mouvement normal';
+      currentPrice > bb.upper ? 'Prix au-dessus de la bande sup. \u2014 surachat' :
+      currentPrice < bb.lower ? 'Prix sous la bande inf. \u2014 survente' :
+      'Prix dans les bandes \u2014 mouvement normal';
   }
 
-  // Volume
-  document.getElementById('vol-cur').textContent = curVol ? curVol.toFixed(2) + ' BTC' : '—';
-  document.getElementById('vol-avg').textContent = avgVol ? avgVol.toFixed(2) + ' BTC' : '—';
+  document.getElementById('vol-cur').textContent = curVol ? curVol.toFixed(2) + ' BTC' : '\u2014';
+  document.getElementById('vol-avg').textContent = avgVol ? avgVol.toFixed(2) + ' BTC' : '\u2014';
   const fill = document.getElementById('vol-ratio-fill');
   if (avgVol) {
     const pct = Math.min((curVol / avgVol) * 50, 100);
@@ -836,35 +1214,32 @@ async function runAI() {
   const btn = document.getElementById('ai-btn');
   btn.disabled = true;
   document.getElementById('ai-btn-icon').style.animation = 'spin 1s linear infinite';
-  document.getElementById('ai-btn-text').textContent = 'ANALYSE EN COURS…';
+  document.getElementById('ai-btn-text').textContent = 'ANALYSE EN COURS...';
   document.getElementById('ai-placeholder').style.display = 'none';
   document.getElementById('ai-result-wrap').style.display = 'none';
 
   const { rsi, macdData, ma20, ma50, ma200, bb, change, curVol, avgVol } = indicators;
   const tfLabel = timeframe === '1' ? '24h' : timeframe === '7' ? '7j' : '30j';
 
-  const prompt = `Tu es un analyste technique Bitcoin expérimenté. Voici les données de marché actuelles pour un trader intermédiaire :
-
-PRIX : $${currentPrice.toFixed(2)}
-VARIATION (${tfLabel}) : ${change.toFixed(2)}%
-
-INDICATEURS TECHNIQUES :
-- RSI (14) : ${rsi}
-- MACD : ${macdData.last.toFixed(2)} | Signal : ${macdData.signal.toFixed(2)} | Histogramme : ${macdData.hist.toFixed(2)}
-- MA20 : $${ma20?.toFixed(2) || 'N/A'} ${ma20 ? (currentPrice > ma20 ? '(prix au-dessus)' : '(prix en-dessous)') : ''}
-- MA50 : $${ma50?.toFixed(2) || 'N/A'} ${ma50 ? (currentPrice > ma50 ? '(prix au-dessus)' : '(prix en-dessous)') : ''}
-- MA200 : $${ma200?.toFixed(2) || 'N/A'} ${ma200 ? (currentPrice > ma200 ? '(prix au-dessus)' : '(prix en-dessous)') : ''}
-- Bandes de Bollinger : Upper $${bb?.upper.toFixed(0)} | Mid $${bb?.mid.toFixed(0)} | Lower $${bb?.lower.toFixed(0)}
-- Volume actuel vs moyenne 20p : ${curVol?.toFixed(2)} vs ${avgVol?.toFixed(2)} (${((curVol/avgVol-1)*100).toFixed(0)}%)
-
-Fournis une analyse structurée en JSON UNIQUEMENT (sans markdown, sans backticks) avec ce format exact :
-{"signal":"ACHETER"|"VENDRE"|"ATTENDRE","force":1-10,"horizon":"court terme (24h-48h)"|"moyen terme (1-2 semaines)"|"long terme (1+ mois)","confluence":["raison 1","raison 2","raison 3"],"risques":["risque 1","risque 2"],"niveaux":{"support1":prix,"support2":prix,"resistance1":prix,"resistance2":prix},"synthese":"2-3 phrases d'analyse globale pour trader intermédiaire"}`;
+  const prompt = 'Tu es un analyste technique Bitcoin experimente. Voici les donnees de marche actuelles pour un trader intermediaire :\n\n' +
+    'PRIX : $' + currentPrice.toFixed(2) + '\n' +
+    'VARIATION (' + tfLabel + ') : ' + change.toFixed(2) + '%\n\n' +
+    'INDICATEURS TECHNIQUES :\n' +
+    '- RSI (14) : ' + rsi + '\n' +
+    '- MACD : ' + macdData.last.toFixed(2) + ' | Signal : ' + macdData.signal.toFixed(2) + ' | Histogramme : ' + macdData.hist.toFixed(2) + '\n' +
+    '- MA20 : $' + (ma20?.toFixed(2) || 'N/A') + ' ' + (ma20 ? (currentPrice > ma20 ? '(prix au-dessus)' : '(prix en-dessous)') : '') + '\n' +
+    '- MA50 : $' + (ma50?.toFixed(2) || 'N/A') + ' ' + (ma50 ? (currentPrice > ma50 ? '(prix au-dessus)' : '(prix en-dessous)') : '') + '\n' +
+    '- MA200 : $' + (ma200?.toFixed(2) || 'N/A') + ' ' + (ma200 ? (currentPrice > ma200 ? '(prix au-dessus)' : '(prix en-dessous)') : '') + '\n' +
+    '- Bandes de Bollinger : Upper $' + (bb?.upper.toFixed(0) || 'N/A') + ' | Mid $' + (bb?.mid.toFixed(0) || 'N/A') + ' | Lower $' + (bb?.lower.toFixed(0) || 'N/A') + '\n' +
+    '- Volume actuel vs moyenne 20p : ' + (curVol?.toFixed(2) || 'N/A') + ' vs ' + (avgVol?.toFixed(2) || 'N/A') + ' (' + (avgVol ? ((curVol/avgVol-1)*100).toFixed(0) : 0) + '%)\n\n' +
+    'Fournis une analyse structuree en JSON UNIQUEMENT (sans markdown, sans backticks) avec ce format exact :\n' +
+    '{"signal":"ACHETER"|"VENDRE"|"ATTENDRE","force":1-10,"horizon":"court terme (24h-48h)"|"moyen terme (1-2 semaines)"|"long terme (1+ mois)","confluence":["raison 1","raison 2","raison 3"],"risques":["risque 1","risque 2"],"niveaux":{"support1":prix,"support2":prix,"resistance1":prix,"resistance2":prix},"synthese":"2-3 phrases d\'analyse globale pour trader intermediaire"}';
 
   try {
     const r = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt: prompt })
     });
     if (!r.ok) throw new Error('API error ' + r.status);
     const d = await r.json();
@@ -872,43 +1247,47 @@ Fournis une analyse structurée en JSON UNIQUEMENT (sans markdown, sans backtick
     const clean = raw.replace(/```json|```/g, '').trim();
     const ai = JSON.parse(clean);
     renderAIResult(ai);
+    saveAIHistory(ai);
   } catch (e) {
-    renderAIResult({ signal: 'ATTENDRE', force: 0, synthese: 'Erreur d\'analyse. Réessaie.', confluence: [], risques: [], niveaux: {}, horizon: '—' });
+    renderAIResult({ signal: 'ATTENDRE', force: 0, synthese: 'Erreur d\'analyse. Reessaie.', confluence: [], risques: [], niveaux: {}, horizon: '\u2014' });
   }
 
   btn.disabled = false;
   document.getElementById('ai-btn-icon').style.animation = '';
-  document.getElementById('ai-btn-text').textContent = 'REGÉNÉRER L\'ANALYSE IA';
+  document.getElementById('ai-btn-text').textContent = 'REGENERER L\'ANALYSE IA';
 }
 
 function renderAIResult(ai) {
   const signalCfg = {
-    ACHETER: { bg: 'rgba(34,211,238,.12)', border: '#22d3ee', color: '#22d3ee', icon: '▲', label: 'SIGNAL ACHAT' },
-    VENDRE:  { bg: 'rgba(248,113,113,.12)', border: '#f87171', color: '#f87171', icon: '▼', label: 'SIGNAL VENTE' },
-    ATTENDRE:{ bg: 'rgba(250,204,21,.08)', border: '#facc15', color: '#facc15', icon: '◆', label: 'ATTENDRE' },
+    ACHETER: { bg: 'rgba(34,211,238,.12)', border: '#22d3ee', color: '#22d3ee', icon: '\u25B2', label: 'SIGNAL ACHAT' },
+    VENDRE:  { bg: 'rgba(248,113,113,.12)', border: '#f87171', color: '#f87171', icon: '\u25BC', label: 'SIGNAL VENTE' },
+    ATTENDRE:{ bg: 'rgba(250,204,21,.08)', border: '#facc15', color: '#facc15', icon: '\u25C6', label: 'ATTENDRE' },
   };
   const cfg = signalCfg[ai.signal] || signalCfg.ATTENDRE;
 
   const badge = document.getElementById('ai-signal-badge');
-  badge.innerHTML = `<span style="font-size:18px">${cfg.icon}</span> ${cfg.label}`;
-  badge.style.cssText = `background:${cfg.bg};border:1px solid ${cfg.border};color:${cfg.color};display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:6px;font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:.12em`;
+  badge.innerHTML = '<span style="font-size:18px">' + cfg.icon + '</span> ' + cfg.label;
+  badge.style.cssText = 'background:' + cfg.bg + ';border:1px solid ' + cfg.border + ';color:' + cfg.color + ';display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:6px;font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:.12em';
 
-  document.getElementById('ai-force').innerHTML = `Force : <span style="color:var(--yellow)">${ai.force}/10</span>`;
-  document.getElementById('ai-horizon').innerHTML = `Horizon : <span style="color:var(--purple)">${ai.horizon}</span>`;
+  document.getElementById('ai-force').innerHTML = 'Force : <span style="color:var(--yellow)">' + ai.force + '/10</span>';
+  document.getElementById('ai-horizon').innerHTML = 'Horizon : <span style="color:var(--purple)">' + ai.horizon + '</span>';
   document.getElementById('ai-synthese').textContent = ai.synthese;
 
-  document.getElementById('ai-conf').innerHTML = (ai.confluence || []).map(r =>
-    `<div class="conf-item">${r}</div>`).join('');
-  document.getElementById('ai-risks').innerHTML = (ai.risques || []).map(r =>
-    `<div class="risk-item">${r}</div>`).join('');
+  document.getElementById('ai-conf').innerHTML = (ai.confluence || []).map(function(r) {
+    return '<div class="conf-item">' + r + '</div>';
+  }).join('');
+  document.getElementById('ai-risks').innerHTML = (ai.risques || []).map(function(r) {
+    return '<div class="risk-item">' + r + '</div>';
+  }).join('');
 
   const levels = document.getElementById('levels-wrap');
-  levels.innerHTML = Object.entries(ai.niveaux || {}).map(([k, v]) => {
+  levels.innerHTML = Object.entries(ai.niveaux || {}).map(function(entry) {
+    var k = entry[0], v = entry[1];
     const isSupport = k.startsWith('support');
-    return `<div class="level-chip" style="background:${isSupport ? 'rgba(34,211,238,.08)' : 'rgba(248,113,113,.08)'};border:1px solid ${isSupport ? '#22d3ee33' : '#f8717133'}">
-      <div class="level-chip-label">${k.toUpperCase()}</div>
-      <div class="level-chip-val" style="color:${isSupport ? 'var(--cyan2)' : 'var(--red)'}">$${Number(v).toLocaleString()}</div>
-    </div>`;
+    return '<div class="level-chip" style="background:' + (isSupport ? 'rgba(34,211,238,.08)' : 'rgba(248,113,113,.08)') + ';border:1px solid ' + (isSupport ? '#22d3ee33' : '#f8717133') + '">' +
+      '<div class="level-chip-label">' + k.toUpperCase() + '</div>' +
+      '<div class="level-chip-val" style="color:' + (isSupport ? 'var(--cyan2)' : 'var(--red)') + '">$' + Number(v).toLocaleString() + '</div>' +
+      '</div>';
   }).join('');
 
   document.getElementById('ai-result-wrap').style.display = 'block';
@@ -916,11 +1295,48 @@ function renderAIResult(ai) {
 }
 
 /* ══════════════════════════════════
+   THEME
+══════════════════════════════════ */
+function initTheme() {
+  const saved = localStorage.getItem('btc_theme');
+  if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  updateThemeIcon();
+}
+
+function toggleTheme() {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('btc_theme', 'dark');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+    localStorage.setItem('btc_theme', 'light');
+  }
+  updateThemeIcon();
+}
+
+function updateThemeIcon() {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  document.getElementById('theme-toggle').textContent = isLight ? '\u2600' : '\u263E';
+}
+
+/* ══════════════════════════════════
+   EXPORT PDF
+══════════════════════════════════ */
+function exportPDF() {
+  window.print();
+}
+
+/* ══════════════════════════════════
    INIT & EVENTS
 ══════════════════════════════════ */
 async function loadData(tf) {
   try {
-    await Promise.all([fetchLivePrice(), fetchCandles(tf)]);
+    const promises = [fetchLivePrice(), fetchCandles(tf), fetchFearGreed()];
+    for (const coin of compareCoins) {
+      promises.push(fetchCompareCandles(coin, tf).then(d => { if (d) compareCache[coin] = d; }));
+    }
+    await Promise.all(promises);
     updateStats();
     updateCharts();
     updateIndicatorTab();
@@ -931,10 +1347,14 @@ async function loadData(tf) {
   document.getElementById('loading-overlay').style.display = 'none';
 }
 
+// Theme
+initTheme();
+document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
 // Timeframe buttons
-document.querySelectorAll('.tf-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.tf-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tf-btn').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
     timeframe = btn.dataset.tf;
     document.getElementById('loading-overlay').style.display = 'flex';
@@ -942,13 +1362,55 @@ document.querySelectorAll('.tf-btn').forEach(btn => {
   });
 });
 
+// Chart mode buttons
+document.querySelectorAll('.chart-mode-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.chart-mode-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    chartMode = btn.dataset.mode;
+    updateCharts();
+  });
+});
+
+// Compare buttons
+document.querySelectorAll('.compare-btn').forEach(function(btn) {
+  btn.addEventListener('click', async function() {
+    const coin = btn.dataset.coin;
+    if (compareCoins.has(coin)) {
+      compareCoins.delete(coin);
+      btn.classList.remove('active');
+      delete compareCache[coin];
+    } else {
+      compareCoins.clear();
+      document.querySelectorAll('.compare-btn').forEach(function(b) { b.classList.remove('active'); });
+      compareCoins.add(coin);
+      btn.classList.add('active');
+      const data = await fetchCompareCandles(coin, timeframe);
+      if (data) compareCache[coin] = data;
+    }
+    updateCharts();
+
+    // Update legend
+    const legend = document.getElementById('price-chart-legend');
+    const existing = legend.querySelector('.legend-compare');
+    if (existing) existing.remove();
+    if (compareCoins.size > 0) {
+      const coin = Array.from(compareCoins)[0];
+      const div = document.createElement('div');
+      div.className = 'legend-item legend-compare';
+      div.innerHTML = '<svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6 3"/></svg><span>' + coin + '</span>';
+      legend.appendChild(div);
+    }
+  });
+});
+
 // Tab buttons
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
     const tab = btn.dataset.tab;
-    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(function(tc) { tc.classList.remove('active'); });
     document.getElementById('tab-' + tab).classList.add('active');
   });
 });
@@ -956,8 +1418,40 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 // AI button
 document.getElementById('ai-btn').addEventListener('click', runAI);
 
-// Live price refresh
+// Export PDF
+document.getElementById('ai-export-btn').addEventListener('click', exportPDF);
+
+// Price alerts
+document.getElementById('alert-add-btn').addEventListener('click', function() {
+  const input = document.getElementById('alert-price-input');
+  const price = parseFloat(input.value);
+  if (!price || price <= 0) return;
+  const dir = document.getElementById('alert-dir').value;
+  priceAlerts.push({ price: price, dir: dir, triggered: false });
+  localStorage.setItem('btc_alerts', JSON.stringify(priceAlerts));
+  input.value = '';
+  renderAlertChips();
+});
+
+// Request notification permission
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+// Tooltip
+setupTooltip();
+
+// Render saved alerts & history
+renderAlertChips();
+renderAIHistory();
+
+// Live price refresh every 20s
 priceInterval = setInterval(fetchLivePrice, 20000);
+
+// Auto-refresh candles every 5 min
+candleInterval = setInterval(function() {
+  loadData(timeframe);
+}, 300000);
 
 // Initial load
 loadData(timeframe);
