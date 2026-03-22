@@ -267,40 +267,6 @@
   .ai-hist-summary { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.5; display: none; }
   .ai-hist-item.expanded .ai-hist-summary { display: block; }
 
-  /* ── PRICE ALERT ── */
-  #alert-bar {
-    display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;
-  }
-  #alert-bar input {
-    background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
-    padding: 6px 12px; color: var(--text); font-family: var(--mono); font-size: 12px;
-    width: 140px; outline: none;
-  }
-  #alert-bar input:focus { border-color: var(--cyan); }
-  #alert-bar select {
-    background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
-    padding: 6px 8px; color: var(--text); font-family: var(--mono); font-size: 11px;
-    outline: none;
-  }
-  .alert-add-btn {
-    padding: 6px 14px; border-radius: 6px; border: 1px solid var(--cyan);
-    background: rgba(0,212,255,.1); color: var(--cyan); font-size: 11px;
-    font-weight: 600; font-family: var(--mono);
-  }
-  .alert-chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 10px; border-radius: 5px; font-family: var(--mono); font-size: 10px;
-    border: 1px solid var(--border); background: var(--bg3);
-  }
-  .alert-chip .remove { color: var(--red); cursor: pointer; font-size: 12px; }
-  #alert-notification {
-    position: fixed; top: 70px; right: 20px; z-index: 200;
-    background: var(--bg2); border: 2px solid var(--cyan); border-radius: 10px;
-    padding: 16px 20px; font-family: var(--mono); font-size: 12px;
-    box-shadow: 0 8px 30px rgba(0,212,255,.2); display: none; animation: fadeIn .3s ease;
-  }
-  #alert-notification .notif-title { font-weight: 700; color: var(--cyan); margin-bottom: 4px; }
-
   /* ── PLACEHOLDER ── */
   #ai-placeholder { text-align: center; padding: 60px 20px; color: var(--muted3); }
   #ai-placeholder .big-icon { font-size: 40px; margin-bottom: 12px; }
@@ -362,12 +328,6 @@
   <p>CHARGEMENT DES DONNEES...</p>
 </div>
 
-<!-- ALERT NOTIFICATION -->
-<div id="alert-notification">
-  <div class="notif-title">ALERTE PRIX</div>
-  <div id="alert-notif-msg"></div>
-</div>
-
 <!-- TOP BAR -->
 <div id="topbar">
   <div class="left">
@@ -399,18 +359,6 @@
       <div id="fng-bar-gradient"></div>
       <div id="fng-cursor"></div>
     </div>
-  </div>
-
-  <!-- PRICE ALERTS -->
-  <div id="alert-bar">
-    <span style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em">ALERTES :</span>
-    <input id="alert-price-input" type="number" placeholder="Prix ($)" />
-    <select id="alert-dir">
-      <option value="above">Au-dessus</option>
-      <option value="below">En-dessous</option>
-    </select>
-    <button class="alert-add-btn" id="alert-add-btn">+ AJOUTER</button>
-    <div id="alert-chips"></div>
   </div>
 
   <!-- CONTROLS -->
@@ -848,7 +796,6 @@ let timeframe    = '7';
 let chartMode    = 'candle';
 let compareCoins = new Set();
 let compareCache = {};
-let priceAlerts  = JSON.parse(localStorage.getItem('btc_alerts') || '[]');
 let aiHistory    = JSON.parse(localStorage.getItem('btc_ai_history') || '[]');
 let candleInterval = null;
 let priceInterval  = null;
@@ -865,7 +812,6 @@ async function fetchLivePrice() {
       '$' + currentPrice.toLocaleString('en-US', { minimumFractionDigits: 0 });
     document.getElementById('tick-time').textContent =
       new Date().toLocaleTimeString('fr-FR');
-    checkPriceAlerts();
   } catch {}
 }
 
@@ -1002,51 +948,6 @@ function setupTooltip() {
     vLine.style.display = 'none';
     hLine.style.display = 'none';
   });
-}
-
-/* ══════════════════════════════════
-   PRICE ALERTS
-══════════════════════════════════ */
-function renderAlertChips() {
-  const wrap = document.getElementById('alert-chips');
-  wrap.innerHTML = priceAlerts.map((a, i) =>
-    '<span class="alert-chip">' +
-    (a.dir === 'above' ? '&#9650;' : '&#9660;') + ' $' + Number(a.price).toLocaleString() +
-    ' <span class="remove" data-idx="' + i + '">&times;</span></span>'
-  ).join('');
-  wrap.querySelectorAll('.remove').forEach(el => {
-    el.addEventListener('click', () => {
-      priceAlerts.splice(parseInt(el.dataset.idx), 1);
-      localStorage.setItem('btc_alerts', JSON.stringify(priceAlerts));
-      renderAlertChips();
-    });
-  });
-}
-
-function checkPriceAlerts() {
-  if (!currentPrice) return;
-  priceAlerts.forEach((a, i) => {
-    if (a.triggered) return;
-    const hit = (a.dir === 'above' && currentPrice >= a.price) ||
-                (a.dir === 'below' && currentPrice <= a.price);
-    if (hit) {
-      a.triggered = true;
-      localStorage.setItem('btc_alerts', JSON.stringify(priceAlerts));
-      showAlertNotification(a);
-    }
-  });
-}
-
-function showAlertNotification(alert) {
-  const el = document.getElementById('alert-notification');
-  document.getElementById('alert-notif-msg').textContent =
-    'BTC ' + (alert.dir === 'above' ? 'au-dessus de' : 'en-dessous de') + ' $' + Number(alert.price).toLocaleString() +
-    ' — Prix actuel: $' + currentPrice.toLocaleString();
-  el.style.display = 'block';
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('BTC Alert', { body: 'BTC ' + (alert.dir === 'above' ? '>' : '<') + ' $' + alert.price });
-  }
-  setTimeout(() => { el.style.display = 'none'; }, 8000);
 }
 
 /* ══════════════════════════════════
@@ -1431,28 +1332,10 @@ document.getElementById('ai-btn').addEventListener('click', runAI);
 // Export PDF
 document.getElementById('ai-export-btn').addEventListener('click', exportPDF);
 
-// Price alerts
-document.getElementById('alert-add-btn').addEventListener('click', function() {
-  const input = document.getElementById('alert-price-input');
-  const price = parseFloat(input.value);
-  if (!price || price <= 0) return;
-  const dir = document.getElementById('alert-dir').value;
-  priceAlerts.push({ price: price, dir: dir, triggered: false });
-  localStorage.setItem('btc_alerts', JSON.stringify(priceAlerts));
-  input.value = '';
-  renderAlertChips();
-});
-
-// Request notification permission
-if ('Notification' in window && Notification.permission === 'default') {
-  Notification.requestPermission();
-}
-
 // Tooltip
 setupTooltip();
 
-// Render saved alerts & history
-renderAlertChips();
+// Render saved history
 renderAIHistory();
 
 // Live price refresh every 20s
