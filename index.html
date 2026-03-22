@@ -314,9 +314,77 @@
   @media (max-width: 600px) {
     .two-col, .ai-two-col { grid-template-columns: 1fr; }
     #price-display { font-size: 17px; }
-    #topbar { padding: 0 12px; }
-    #app { padding: 12px 10px 60px; }
-    #fng-box { flex-wrap: wrap; }
+    #topbar { padding: 0 10px; height: 50px; }
+    #topbar .brand { font-size: 11px; }
+    #topbar .sub { font-size: 9px; }
+    #btc-icon { width: 28px; height: 28px; font-size: 13px; border-radius: 6px; }
+    #topbar .left { gap: 8px; }
+    #topbar .right { gap: 8px; }
+    #change-display { font-size: 10px; }
+    #tick-time { font-size: 9px; }
+    #theme-toggle { padding: 3px 6px; font-size: 13px; }
+
+    #app { padding: 10px 8px 40px; }
+
+    /* Fear & Greed compact */
+    #fng-box { flex-wrap: wrap; padding: 6px 10px; gap: 8px; margin-bottom: 10px; }
+    #fng-score { font-size: 22px; }
+    #fng-label { font-size: 10px; min-width: 60px; }
+
+    /* Controls: wrap nicely */
+    #controls { gap: 5px; margin-bottom: 10px; }
+    .tf-btn, .tab-btn, .chart-mode-btn { padding: 5px 8px; font-size: 10px; }
+    .divider { height: 16px; }
+    .compare-btn { padding: 4px 8px; font-size: 10px; }
+
+    /* Stats: 3-col grid */
+    #stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+    .stat-box { padding: 8px 10px; min-width: unset; }
+    .stat-label { font-size: 8px; margin-bottom: 3px; }
+    .stat-value { font-size: 13px; }
+    .stat-sub { font-size: 9px; }
+
+    /* Charts */
+    .chart-panel { margin-bottom: 8px; }
+    .chart-panel-header { padding: 8px 10px; }
+    .chart-panel-title { font-size: 9px; }
+    .chart-panel-legend { gap: 6px; }
+    .legend-item span { font-size: 8px; }
+    .chart-panel-body { padding: 4px 1px 2px; }
+
+    /* Indicators */
+    .ind-block { padding: 12px; margin-bottom: 8px; }
+    .ind-title { font-size: 10px; margin-bottom: 8px; }
+    #rsi-big { font-size: 32px; }
+    .macd-vals { gap: 6px; }
+    .macd-val-box { padding: 8px 10px; }
+    .macd-val-num { font-size: 15px; }
+    .ma-row { padding: 6px 10px; gap: 8px; }
+    .ma-row-val { font-size: 13px; }
+    .ma-badge { font-size: 9px; padding: 2px 8px; }
+
+    /* AI */
+    #ai-btn { padding: 12px; font-size: 11px; margin-bottom: 12px; }
+    .signal-badge { padding: 6px 14px; font-size: 13px; }
+    #ai-header { gap: 8px; margin-bottom: 12px; }
+    .ai-card { padding: 12px; margin-bottom: 8px; }
+    .ai-card-title { font-size: 9px; }
+    #ai-synthese { font-size: 12px; }
+    .conf-item, .risk-item { font-size: 11px; }
+    #levels-wrap { gap: 6px; }
+    .level-chip { padding: 6px 10px; }
+    .level-chip-label { font-size: 8px; }
+    .level-chip-val { font-size: 12px; }
+    .ai-actions { gap: 5px; }
+    .ai-action-btn { padding: 5px 10px; font-size: 9px; }
+    .ai-hist-item { padding: 8px 10px; margin-bottom: 6px; }
+    .ai-hist-signal { font-size: 10px; }
+    .ai-hist-date { font-size: 8px; }
+    .ai-hist-summary { font-size: 10px; }
+
+    /* Tooltip */
+    #chart-tooltip { padding: 6px 8px; font-size: 9px; }
+    #chart-tooltip .tt-price { font-size: 12px; }
   }
 </style>
 </head>
