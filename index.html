@@ -415,9 +415,11 @@
 
   <!-- CONTROLS -->
   <div id="controls">
+    <button class="tf-btn" data-tf="0.04">1H</button>
     <button class="tf-btn active" data-tf="1">24H</button>
     <button class="tf-btn" data-tf="7">7J</button>
     <button class="tf-btn" data-tf="30">30J</button>
+    <button class="tf-btn" data-tf="365">1A</button>
     <div class="divider"></div>
     <button class="chart-mode-btn active" data-mode="candle">CHANDELIER</button>
     <button class="chart-mode-btn" data-mode="line">LIGNE</button>
@@ -869,13 +871,13 @@ async function fetchLivePrice() {
 
 async function fetchCandles(days) {
   const end   = Math.floor(Date.now() / 1000);
-  const gran  = days === '1' ? 900 : days === '7' ? 3600 : 86400;
-  const start = end - parseInt(days) * 86400;
+  const gran  = days === '0.04' ? 60 : days === '1' ? 900 : days === '7' ? 3600 : 86400;
+  const start = end - Math.round(parseFloat(days) * 86400);
   const r = await fetch(
     'https://api.exchange.coinbase.com/products/BTC-USD/candles?start=' + start + '&end=' + end + '&granularity=' + gran
   );
   const raw = await r.json();
-  if (!Array.isArray(raw) || raw.length < 10) throw new Error('No data');
+  if (!Array.isArray(raw) || raw.length < 5) throw new Error('No data');
   const sorted = raw.sort((a, b) => a[0] - b[0]);
   const closes = sorted.map(c => c[4]);
   const vols   = sorted.map(c => c[5]);
@@ -901,8 +903,8 @@ async function fetchCandles(days) {
 async function fetchCompareCandles(coin, days) {
   try {
     const end   = Math.floor(Date.now() / 1000);
-    const gran  = days === '1' ? 900 : days === '7' ? 3600 : 86400;
-    const start = end - parseInt(days) * 86400;
+    const gran  = days === '0.04' ? 60 : days === '1' ? 900 : days === '7' ? 3600 : 86400;
+    const start = end - Math.round(parseFloat(days) * 86400);
     const r = await fetch(
       'https://api.exchange.coinbase.com/products/' + coin + '-USD/candles?start=' + start + '&end=' + end + '&granularity=' + gran
     );
@@ -1081,7 +1083,7 @@ function saveAIHistory(ai) {
 function updateStats() {
   if (!indicators || !currentPrice) return;
   const { rsi, macdData, ma20, bb, avgVol, curVol, change, high, low } = indicators;
-  const label = timeframe === '1' ? '24h' : timeframe === '7' ? '7j' : '30j';
+  const label = timeframe === '0.04' ? '1h' : timeframe === '1' ? '24h' : timeframe === '7' ? '7j' : timeframe === '30' ? '30j' : '1a';
 
   document.getElementById('s-high').textContent = '$' + high.toLocaleString();
   document.getElementById('s-low').textContent  = '$' + low.toLocaleString();
@@ -1219,7 +1221,7 @@ async function runAI() {
   document.getElementById('ai-result-wrap').style.display = 'none';
 
   const { rsi, macdData, ma20, ma50, ma200, bb, change, curVol, avgVol } = indicators;
-  const tfLabel = timeframe === '1' ? '24h' : timeframe === '7' ? '7j' : '30j';
+  const tfLabel = timeframe === '0.04' ? '1h' : timeframe === '1' ? '24h' : timeframe === '7' ? '7j' : timeframe === '30' ? '30j' : '1a';
 
   const prompt = 'Tu es un analyste technique Bitcoin experimente. Voici les donnees de marche actuelles pour un trader intermediaire :\n\n' +
     'PRIX : $' + currentPrice.toFixed(2) + '\n' +
