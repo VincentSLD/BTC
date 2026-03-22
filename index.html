@@ -869,15 +869,28 @@ async function fetchLivePrice() {
   } catch {}
 }
 
+async function fetchCandlesChunked(product, days, gran) {
+  const end   = Math.floor(Date.now() / 1000);
+  const start = end - Math.round(parseFloat(days) * 86400);
+  const maxPerReq = 300;
+  const chunkSize = maxPerReq * gran;
+  let all = [];
+  for (let s = start; s < end; s += chunkSize) {
+    const e = Math.min(s + chunkSize, end);
+    const r = await fetch(
+      'https://api.exchange.coinbase.com/products/' + product + '/candles?start=' + s + '&end=' + e + '&granularity=' + gran
+    );
+    const raw = await r.json();
+    if (Array.isArray(raw)) all = all.concat(raw);
+  }
+  return all;
+}
+
 async function fetchCandles(days) {
   const end   = Math.floor(Date.now() / 1000);
   const gran  = days === '0.04' ? 60 : days === '1' ? 900 : days === '7' ? 3600 : 86400;
-  const start = end - Math.round(parseFloat(days) * 86400);
-  const r = await fetch(
-    'https://api.exchange.coinbase.com/products/BTC-USD/candles?start=' + start + '&end=' + end + '&granularity=' + gran
-  );
-  const raw = await r.json();
-  if (!Array.isArray(raw) || raw.length < 5) throw new Error('No data');
+  const raw = await fetchCandlesChunked('BTC-USD', days, gran);
+  if (raw.length < 5) throw new Error('No data');
   const sorted = raw.sort((a, b) => a[0] - b[0]);
   const closes = sorted.map(c => c[4]);
   const vols   = sorted.map(c => c[5]);
@@ -902,14 +915,9 @@ async function fetchCandles(days) {
 
 async function fetchCompareCandles(coin, days) {
   try {
-    const end   = Math.floor(Date.now() / 1000);
     const gran  = days === '0.04' ? 60 : days === '1' ? 900 : days === '7' ? 3600 : 86400;
-    const start = end - Math.round(parseFloat(days) * 86400);
-    const r = await fetch(
-      'https://api.exchange.coinbase.com/products/' + coin + '-USD/candles?start=' + start + '&end=' + end + '&granularity=' + gran
-    );
-    const raw = await r.json();
-    if (!Array.isArray(raw) || raw.length < 5) return null;
+    const raw = await fetchCandlesChunked(coin + '-USD', days, gran);
+    if (raw.length < 5) return null;
     const sorted = raw.sort((a, b) => a[0] - b[0]);
     return { closes: sorted.map(c => c[4]), candles: sorted };
   } catch { return null; }
